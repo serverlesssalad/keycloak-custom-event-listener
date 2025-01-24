@@ -3,6 +3,19 @@
 ## TLDR
 A Keycloak extension that listens for user events (create/register) and forwards them to your webhook.
 
+## Additional Information
+We customize the project for our purpose.
+
+### Parameter
+
+```
+-e KC_SPI_EVENT_LISTENER_KEYCLOAK_EVENTS_WEBHOOK_URL=http://host.docker.internal:8000/sb/api/v1/user/event \
+-e KC_SPI_EVENT_LISTENER_KEYCLOAK_EVENTS_WEBHOOK_KEYCLOAK_ISSUER=https://service-name/auth \
+-e KC_SPI_EVENT_LISTENER_KEYCLOAK_EVENTS_WEBHOOK_KEYCLOAK_CLIENT_ID={client_id}} \
+-e KC_SPI_EVENT_LISTENER_KEYCLOAK_EVENTS_WEBHOOK_KEYCLOAK_CLIENT_SECRET={client_secret}} \
+-e KC_SPI_EVENT_LISTENER_KEYCLOAK_EVENTS_WEBHOOK_KEYCLOAK_REALM={realm_name}} \
+```
+
 ## Quick Start
 ```bash
 # Clone the repository

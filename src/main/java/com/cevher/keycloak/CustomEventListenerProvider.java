@@ -7,10 +7,12 @@ import org.keycloak.events.EventType;
 import org.keycloak.events.admin.AdminEvent;
 import org.keycloak.events.admin.OperationType;
 import org.keycloak.events.admin.ResourceType;
+import org.keycloak.models.AuthenticatedClientSessionModel;
 import org.keycloak.models.KeycloakSession;
 import org.keycloak.models.RealmModel;
 import org.keycloak.models.RealmProvider;
 import org.keycloak.models.UserModel;
+import org.keycloak.models.UserSessionModel;
 
 import java.util.StringJoiner;
 
@@ -39,7 +41,10 @@ public class CustomEventListenerProvider
 
             RealmModel realm = this.model.getRealm(event.getRealmId());
             UserModel user = this.session.users().getUserById(realm, event.getUserId());
+
+            System.out.println("trigger to update new user in target : user_name" + user.getUsername());
             sendUserData(user);
+            
         }
 
     }
@@ -56,6 +61,7 @@ public class CustomEventListenerProvider
             RealmModel realm = this.model.getRealm(adminEvent.getRealmId());
             UserModel user = this.session.users().getUserById(realm, adminEvent.getResourcePath().substring(6));
 
+            System.out.println("trigger to update new user in target : user_name" + user.getUsername());
             sendUserData(user);
         }
     }
@@ -63,13 +69,12 @@ public class CustomEventListenerProvider
     private void sendUserData(UserModel user) {
         String data = """
                 {
-                    "id": "%s",
+                    "external_id": "%s",
                     "email": "%s",
-                    "userName": "%s",
-                    "firstName": "%s",
-                    "lastName": "%s"
+                    "first_name": "%s",
+                    "last_name": "%s"
                 }
-                """.formatted(user.getId(), user.getEmail(), user.getUsername(), user.getFirstName(), user.getLastName());
+                """.formatted(user.getId(), user.getEmail(), user.getFirstName(), user.getLastName());
         try {
             Client.postService(data);
             log.debug("A new user has been created and post API");
@@ -134,6 +139,20 @@ public class CustomEventListenerProvider
         }
 
         return joiner.toString();
+    }
+
+    public String getAccessTokenForUserSession(UserSessionModel userSession, String clientUUID) {
+        // Get the client session for the specified client UUID
+        AuthenticatedClientSessionModel clientSession = userSession.getAuthenticatedClientSessionByClient(clientUUID);
+    
+        if (clientSession != null) {
+            // Get the access token from the client session
+            String accessToken = clientSession.getNote("access_token");
+            return accessToken;
+        } else {
+            // If client session is not found
+            return null;
+        }
     }
 
 }
